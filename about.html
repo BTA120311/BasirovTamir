@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Обо мне — Тамир Басиров</title>
+    <link rel="icon" type="image/png" href="images/favicon.png">
+    <link rel="apple-touch-icon" href="images/favicon.png">
+    <style>
+        :root { --bg-color: #ffffff; --bg-secondary: #f5f5f7; --text-main: #1d1d1f; --text-secondary: #86868b; --accent: #0071e3; --max-width: 1000px; }
+        html { scroll-behavior: smooth; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif; margin: 0; padding: 0; background-color: var(--bg-color); color: var(--text-main); line-height: 1.5; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+        
+        ::selection { background: var(--accent); color: #fff; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-color); }
+        ::-webkit-scrollbar-thumb { background: #d1d1d6; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
+
+        .noise { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9999; opacity: 0.04; background-image: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)"/%3E%3C/svg%3E'); }
+        .progress-bar { position: fixed; top: 0; left: 0; height: 3px; background: var(--accent); width: 0%; z-index: 10000; transition: width 0.1s; }
+        .ambient-glow { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 80vw; height: 50vh; background: radial-gradient(circle, rgba(0, 113, 227, 0.1) 0%, rgba(255,255,255,0) 70%); z-index: 1; pointer-events: none; animation: pulse-glow 8s infinite alternate ease-in-out; }
+        @keyframes pulse-glow { 0% { transform: translateX(-50%) scale(1); opacity: 0.7; } 100% { transform: translateX(-50%) scale(1.1); opacity: 1; } }
+
+        /* Навигация */
+        .main-nav { position: fixed; top: 0; width: 100%; background: rgba(255, 255, 255, 0.85); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); display: flex; justify-content: space-between; align-items: center; padding: 16px 40px; box-sizing: border-box; z-index: 999; border-bottom: 1px solid rgba(0,0,0,0.05); transition: all 0.3s ease; }
+        .nav-brand { font-weight: 700; font-size: 18px; color: var(--text-main); text-decoration: none; z-index: 2; position: relative; }
+        .nav-links { display: flex; gap: 24px; align-items: center; }
+        .nav-links a { text-decoration: none; color: var(--text-main); font-size: 14px; font-weight: 500; opacity: 0.8; transition: opacity 0.3s; }
+        .nav-links a:hover { opacity: 1; }
+        
+        /* 3-х секционный переключатель языков */
+        .lang-switch-container { display: flex; align-items: center; z-index: 2; }
+        .lang-switch { display: flex; align-items: center; background: rgba(0,0,0,0.05); border-radius: 980px; padding: 4px; position: relative; width: 120px; }
+        .lang-btn { flex: 1; text-align: center; position: relative; z-index: 2; padding: 4px 0; font-size: 12px; font-weight: 700; color: var(--text-secondary); cursor: pointer; transition: color 0.3s; user-select: none; }
+        .lang-btn.active { color: var(--text-main); }
+        .lang-slider { position: absolute; top: 4px; left: 4px; width: calc(33.33% - 2.6px); height: calc(100% - 8px); background: #fff; border-radius: 980px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        .lang-switch[data-lang="ru"] .lang-slider { transform: translateX(0); }
+        .lang-switch[data-lang="en"] .lang-slider { transform: translateX(100%); }
+        .lang-switch[data-lang="uz"] .lang-slider { transform: translateX(200%); }
+
+        .btn-nav { background-color: var(--text-main); color: #fff; padding: 10px 24px; border-radius: 980px; text-decoration: none; font-size: 14px; font-weight: 600; transition: background-color 0.3s; display: inline-block; }
+        .btn-nav:hover { background-color: var(--accent); }
+
+        /* Мобильное меню */
+        .menu-toggle { display: none; flex-direction: column; justify-content: space-between; width: 28px; height: 18px; cursor: pointer; z-index: 1000; position: relative; }
+        .menu-toggle span { display: block; width: 100%; height: 2px; background-color: var(--text-main); border-radius: 2px; }
+        .mobile-menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: rgba(255, 255, 255, 0.95); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); z-index: 10000; display: flex; flex-direction: column; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.4s ease; text-align: center; }
+        .mobile-menu-overlay.active { opacity: 1; pointer-events: auto; }
+        .close-menu-btn { position: absolute; top: 24px; right: 24px; background: #e5e5ea; border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 18px; cursor: pointer; color: var(--text-main); display: flex; align-items: center; justify-content: center; font-weight: bold; transition: background 0.2s; z-index: 10001; }
+        .close-menu-btn:hover { background: #d1d1d6; }
+        .menu-link { font-size: 36px; font-weight: 700; color: var(--text-main); text-decoration: none; margin-bottom: 24px; display: block; opacity: 0; transform: translateY(20px); transition: all 0.4s ease; }
+        .mobile-menu-overlay.active .menu-link { opacity: 1; transform: translateY(0); }
+        .mobile-menu-overlay.active .menu-link:nth-child(1) { transition-delay: 0.1s; }
+        .mobile-menu-overlay.active .menu-link:nth-child(2) { transition-delay: 0.15s; }
+        .mobile-menu-overlay.active .menu-link:nth-child(3) { transition-delay: 0.2s; }
+        .mobile-menu-overlay.active .menu-link:nth-child(4) { transition-delay: 0.25s; }
+
+        /* Контент страницы */
+        .header { padding: 160px 20px 80px 20px; text-align: center; position: relative; z-index: 10; }
+        h1 { font-size: clamp(42px, 6vw, 64px); font-weight: 700; margin: 0 0 16px 0; letter-spacing: -0.015em; }
+        p.subtitle { font-size: clamp(20px, 3vw, 24px); color: var(--text-secondary); max-width: 600px; margin: 0 auto; }
+
+        .about-content { max-width: var(--max-width); margin: 0 auto 120px auto; padding: 0 20px; display: grid; grid-template-columns: 1fr; gap: 40px; position: relative; z-index: 10; }
+        @media (min-width: 768px) { .about-content { grid-template-columns: 1fr 1fr; } }
+        
+        .info-block { background: var(--bg-secondary); padding: 40px; border-radius: 32px; box-shadow: 0 10px 30px rgba(0,0,0,0.02); transition: transform 0.3s ease; }
+        .info-block:hover { transform: translateY(-4px); }
+        .info-block h3 { font-size: 28px; margin: 0 0 16px 0; }
+        .info-block p { font-size: 17px; color: var(--text-secondary); margin-bottom: 16px; line-height: 1.5; }
+
+        .hardware-list { list-style: none; padding: 0; margin: 0; }
+        .hardware-list li { font-size: 17px; color: var(--text-main); padding: 16px 0; border-bottom: 1px solid #e5e5ea; font-weight: 600; }
+        .hardware-list li:last-child { border-bottom: none; }
+        .hardware-list li span { color: var(--text-secondary); font-weight: 400; display: block; font-size: 15px; margin-top: 6px; line-height: 1.4; }
+
+        footer { border-top: 1px solid #e5e5ea; padding: 40px 20px; text-align: center; color: var(--text-secondary); font-size: 14px; position: relative; z-index: 10; background: var(--bg-color); }
+        .footer-links { display: flex; justify-content: center; gap: 24px; margin-bottom: 24px; flex-wrap: wrap; }
+        .footer-links a { color: var(--text-main); text-decoration: none; font-weight: 500; }
+
+        .mobile-cta { display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); background: var(--text-main); color: #fff; text-align: center; padding: 16px; border-radius: 980px; font-weight: 600; text-decoration: none; z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+
+        @media (max-width: 768px) {
+            .main-nav { padding: 12px 20px; }
+            .nav-brand { max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+            /* Кнопка языков в центре на мобилках */
+            .lang-switch-container { position: absolute; left: 50%; transform: translateX(-50%); margin: 0; }
+            .nav-links, .btn-nav { display: none; } 
+            .menu-toggle { display: flex; } 
+            .mobile-cta { display: block; }
+            footer { padding-bottom: 100px; } 
+        }
+
+        .fade-in { opacity: 0; transform: translateY(40px); transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+        .fade-in.visible { opacity: 1; transform: translateY(0); }
+    </style>
+</head>
+<body>
+
+    <div class="noise"></div>
+    <div class="ambient-glow"></div>
+    <div class="progress-bar" id="scroll-progress"></div>
+
+    <!-- Шапка -->
+    <nav class="main-nav">
+        <a href="index.html" class="nav-brand" data-ru="Тамир Басиров" data-en="Tamir Basirov" data-uz="Tamir Basirov">Тамир Басиров</a>
+        
+        <!-- Языки -->
+        <div class="lang-switch-container">
+            <div class="lang-switch" data-lang="ru">
+                <span class="lang-btn active" data-val="ru">RU</span>
+                <span class="lang-btn" data-val="en">EN</span>
+                <span class="lang-btn" data-val="uz">UZ</span>
+                <div class="lang-slider"></div>
+            </div>
+        </div>
+
+        <div class="nav-links">
+            <a href="index.html" data-ru="Услуги" data-en="Services" data-uz="Xizmatlar">Услуги</a>
+            <a href="about.html" style="opacity: 1; border-bottom: 2px solid var(--text-main); padding-bottom: 4px;" data-ru="Обо мне" data-en="About" data-uz="Men haqimda">Обо мне</a>
+            <a href="portfolio.html" data-ru="Портфолио" data-en="Portfolio" data-uz="Portfolio">Портфолио</a>
+            <a href="index.html#pricing" data-ru="Цены" data-en="Pricing" data-uz="Narxlar">Цены</a>
+        </div>
+        
+        <a href="index.html#contacts" class="btn-nav magnetic" data-strength="20" data-ru="Обсудить проект" data-en="Discuss Project" data-uz="Loyihani muhokama qilish">Обсудить проект</a>
+        
+        <div class="menu-toggle" id="mobile-menu-btn"><span></span><span></span><span></span></div>
+    </nav>
+
+    <!-- Полноэкранное меню с крестиком -->
+    <div class="mobile-menu-overlay" id="mobile-menu">
+        <button class="close-menu-btn" id="close-menu-btn">✕</button>
+        <div>
+            <a href="index.html" class="menu-link" data-ru="Услуги" data-en="Services" data-uz="Xizmatlar">Услуги</a>
+            <a href="about.html" class="menu-link" style="color: var(--accent);" data-ru="Обо мне" data-en="About" data-uz="Men haqimda">Обо мне</a>
+            <a href="portfolio.html" class="menu-link" data-ru="Портфолио" data-en="Portfolio" data-uz="Portfolio">Портфолио</a>
+            <a href="index.html#pricing" class="menu-link" data-ru="Цены" data-en="Pricing" data-uz="Narxlar">Цены</a>
+        </div>
+    </div>
+
+    <a href="index.html#contacts" class="mobile-cta" data-ru="Связаться со мной" data-en="Contact Me" data-uz="Bog'lanish">Связаться со мной</a>
+
+    <div class="header fade-in">
+        <h1 data-ru="Тамир Басиров" data-en="Tamir Basirov" data-uz="Tamir Basirov">Тамир Басиров</h1>
+        <p class="subtitle" data-ru="Создаю визуальные смыслы из Ташкента для проектов по всему миру." data-en="Creating visual meanings from Tashkent for projects worldwide." data-uz="Toshkentdan butun dunyo loyihalari uchun vizual ma'nolar yarataman.">Создаю визуальные смыслы из Ташкента для проектов по всему миру.</p>
+    </div>
+
+    <div class="about-content">
+        <!-- Блок 1 -->
+        <div class="info-block fade-in">
+            <h3 data-ru="Мой подход: Искренность продает" data-en="My approach: Sincerity sells" data-uz="Mening yondashuvim: Samimiylik sotadi">Мой подход: Искренность продает</h3>
+            <p data-ru="Я верю, что сухая, «пластиковая» реклама больше не работает. Людям интересны люди." data-en="I believe dry, 'plastic' ads no longer work. People are interested in people." data-uz="Quruq, 'plastik' reklama endi ishlamasligiga ishonaman. Odamlarga odamlar qiziq.">Я верю, что сухая, «пластиковая» реклама больше не работает. Людям интересны люди.</p>
+            <p data-ru="Именно поэтому в видеопродакшене я делаю акцент на «теплом» контенте: мы показываем реальный рабочий процесс, искренние эмоции и живые бэкстейджи. Это формирует мощное доверие." data-en="That is why in video production I focus on 'warm' content: we show the real workflow, genuine emotions, and live backstage. This builds immense trust." data-uz="Aynan shuning uchun video ishlab chiqarishda men 'issiq' kontentga e'tibor qarataman: biz haqiqiy ish jarayonini, samimiy his-tuyg'ularni va jonli beksteyjlarni ko'rsatamiz. Bu kuchli ishonchni shakllantiradi.">Именно поэтому в видеопродакшене я делаю акцент на «теплом» контенте: мы показываем реальный рабочий процесс, искренние эмоции и живые бэкстейджи. Это формирует мощное доверие.</p>
+        </div>
+
+        <!-- Блок 2 -->
+        <div class="info-block fade-in">
+            <h3 data-ru="Опыт & Кейсы" data-en="Experience & Cases" data-uz="Tajriba va Keyslar">Опыт & Кейсы</h3>
+            <p data-ru="В моем портфолио самые разные направления:" data-en="My portfolio covers various directions:" data-uz="Mening portfoliomda turli yo'nalishlar mavjud:">В моем портфолио самые разные направления:</p>
+            <ul class="hardware-list" style="border:none;">
+                <li><span style="display:inline; color:var(--text-main); font-weight:600;" data-ru="Музыкальные проекты" data-en="Music Projects" data-uz="Musiqiy loyihalar">Музыкальные проекты</span> <span data-ru="Участие в релизе альбома 'A Passing Wind – 30 Languages Project'. Генерация промптов, объединяющих электронный бит и живые инструменты." data-en="Participation in the 'A Passing Wind – 30 Languages Project' release. Generating prompts combining electronic beats and live instruments." data-uz="'A Passing Wind – 30 Languages Project' albomi relizida ishtirok etish. Elektron bit va jonli asboblarni birlashtirgan promptlar generatsiyasi.">Участие в релизе альбома "A Passing Wind – 30 Languages Project". Генерация промптов, объединяющих электронный бит и живые инструменты.</span></li>
+                <li><span style="display:inline; color:var(--text-main); font-weight:600;" data-ru="Анимация & Моушн" data-en="Animation & Motion" data-uz="Animatsiya va Moshn">Анимация & Моушн</span> <span data-ru="Промо-кампании для Cana School и анимационные сериалы (например, 'Луми и её друзья')." data-en="Promo campaigns for Cana School and animated series (e.g., 'Lumi and her friends')." data-uz="Cana School uchun promo-kampaniyalar va animatsion seriallar (masalan, 'Lumi va uning do'stlari').">Промо-кампании для Cana School и анимационные сериалы (например, "Луми и её друзья").</span></li>
+                <li><span style="display:inline; color:var(--text-main); font-weight:600;" data-ru="AI & Концепт-Арт" data-en="AI & Concept Art" data-uz="AI va Konsept-Art">AI & Концепт-Арт</span> <span data-ru="Генерация 3D в стиле Pixar и стоп-моушн в духе Тима Бертона." data-en="3D generation in Pixar style and stop-motion in the spirit of Tim Burton." data-uz="Pixar uslubidagi 3D va Tim Byorton ruhidagi stop-moshn generatsiyasi.">Генерация 3D в стиле Pixar и стоп-моушн в духе Тима Бертона.</span></li>
+            </ul>
+        </div>
+
+        <!-- Блок 3 -->
+        <div class="info-block fade-in">
+            <h3 data-ru="Стек и Оборудование" data-en="Stack & Equipment" data-uz="Stek va Uskunalar">Стек и Оборудование</h3>
+            <p data-ru="Качество требует серьезных мощностей. Я работаю на современном оборудовании, что позволяет сдавать проекты быстро и в высоком разрешении." data-en="Quality demands serious power. I work on modern equipment, allowing me to deliver high-resolution projects quickly." data-uz="Sifat jiddiy quvvat talab qiladi. Men zamonaviy uskunalarda ishlayman, bu esa loyihalarni tez va yuqori ruxsatda topshirish imkonini beradi.">Качество требует серьезных мощностей. Я работаю на современном оборудовании, что позволяет сдавать проекты быстро и в высоком разрешении.</p>
+            <ul class="hardware-list">
+                <li>Lenovo LOQ 15IAX9E <span data-ru="Основная рабочая станция. Отвечает за тяжелый рендер в After Effects и работу с нейросетями." data-en="Main workstation. Handles heavy After Effects rendering and neural network processing." data-uz="Asosiy ish stantsiyasi. After Effects-da og'ir render va neyrotarmoqlar bilan ishlash uchun javobgar.">Основная рабочая станция. Отвечает за тяжелый рендер в After Effects и работу с нейросетями.</span></li>
+                <li>iPhone 15 Pro Max <span data-ru="Идеален для мобильных съемок бэкстейджей, тестов и создания кинематографичной картинки." data-en="Perfect for mobile backstage shooting, tests, and creating a cinematic picture." data-uz="Mobil beksteyjlar, testlar va kinematografik rasm yaratish uchun ideal.">Идеален для мобильных съемок бэкстейджей, тестов и создания кинематографичной картинки.</span></li>
+                <li>Software <span data-ru="Photoshop, After Effects, Premiere Pro + передовые ИИ-генераторы звука и видео." data-en="Photoshop, After Effects, Premiere Pro + advanced AI audio and video generators." data-uz="Photoshop, After Effects, Premiere Pro + ilg'or AI ovoz va video generatorlari.">Photoshop, After Effects, Premiere Pro + передовые ИИ-генераторы звука и видео.</span></li>
+            </ul>
+        </div>
+
+        <!-- Блок 4 -->
+        <div class="info-block fade-in magnetic" data-strength="10" style="background: var(--text-main); color: #fff; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; cursor: pointer;" onclick="window.location.href='index.html#contacts'">
+            <h3 style="color: #fff;" data-ru="Готовы к сотрудничеству?" data-en="Ready to collaborate?" data-uz="Hamkorlikka tayyormisiz?">Готовы к сотрудничеству?</h3>
+            <p style="color: #a1a1a6; margin-bottom: 24px;" data-ru="Напишите мне, и мы соберем для вас идеальный визуал." data-en="Message me, and we'll craft the perfect visual for you." data-uz="Menga yozing va biz siz uchun mukammal vizualni yig'amiz.">Напишите мне, и мы соберем для вас идеальный визуал.</p>
+            <a href="index.html#contacts" style="background: #fff; color: #000; padding: 14px 28px; border-radius: 980px; text-decoration: none; font-weight: 600;" data-ru="Обсудить проект" data-en="Discuss Project" data-uz="Loyihani muhokama qilish">Обсудить проект</a>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-links">
+            <a href="portfolio.html" data-ru="Портфолио" data-en="Portfolio" data-uz="Portfolio">Портфолио</a>
+            <a href="about.html" data-ru="Обо мне" data-en="About" data-uz="Men haqimda">Обо мне</a>
+            <a href="https://t.me/basirovtamir" target="_blank">Telegram</a>
+            <a href="https://www.instagram.com/basirov_tamir?igsh=b2IzYXJxazFlMnpk" target="_blank">Instagram</a>
+        </div>
+        <p><span data-ru="&copy; 2026 Тамир Басиров. Дизайн и Моушн. Ташкент." data-en="&copy; 2026 Tamir Basirov. Design & Motion. Tashkent." data-uz="&copy; 2026 Tamir Basirov. Dizayn va Moshn. Toshkent.">&copy; 2026 Тамир Басиров. Дизайн и Моушн. Ташкент.</span></p>
+    </footer>
+
+    <script>
+        // ЕДИНАЯ ПАМЯТЬ ЯЗЫКА (Локал Сторейдж)
+        const savedLang = localStorage.getItem('siteLang') || 'ru';
+        let currentLang = savedLang;
+
+        function applyLanguage(lang) {
+            document.querySelectorAll('.lang-switch').forEach(sw => {
+                sw.setAttribute('data-lang', lang);
+                sw.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+                sw.querySelector(`.lang-btn[data-val="${lang}"]`).classList.add('active');
+            });
+            document.querySelectorAll('[data-' + lang + ']').forEach(el => {
+                el.innerHTML = el.getAttribute('data-' + lang);
+            });
+        }
+
+        applyLanguage(currentLang);
+
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                currentLang = e.target.getAttribute('data-val');
+                localStorage.setItem('siteLang', currentLang);
+                applyLanguage(currentLang);
+            });
+        });
+
+        // Прогресс-бар
+        window.addEventListener('scroll', () => {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            document.getElementById("scroll-progress").style.width = ((winScroll / height) * 100) + "%";
+        });
+
+        // ЛОГИКА МЕНЮ
+        const menuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const closeMenuBtn = document.getElementById('close-menu-btn');
+
+        function openMobileMenu() { mobileMenu.classList.add('active'); document.body.style.overflow = 'hidden'; }
+        function closeMobileMenu() { mobileMenu.classList.remove('active'); document.body.style.overflow = ''; }
+
+        menuBtn.addEventListener('click', openMobileMenu);
+        closeMenuBtn.addEventListener('click', closeMobileMenu);
+        mobileMenu.querySelectorAll('.menu-link, .btn').forEach(link => link.addEventListener('click', closeMobileMenu));
+
+        // Анимация появления
+        document.addEventListener('DOMContentLoaded', () => {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+            }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
+            document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+        });
+
+        // Магнитные кнопки
+        if (window.matchMedia("(pointer: fine)").matches) {
+            document.querySelectorAll('.magnetic').forEach((el) => {
+                el.addEventListener('mousemove', function(e) {
+                    const pos = el.getBoundingClientRect();
+                    const x = e.clientX - pos.left - pos.width / 2;
+                    const y = e.clientY - pos.top - pos.height / 2;
+                    const str = el.dataset.strength || 20;
+                    el.style.transform = `translate(${x / pos.width * str}px, ${y / pos.height * str}px)`;
+                });
+                el.addEventListener('mouseleave', function() {
+                    el.style.transform = 'translate(0px, 0px)';
+                });
+            });
+        }
+    </script>
+</body>
+</html>
