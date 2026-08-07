@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Портфолио — Тамир Басиров</title>
+    <link rel="icon" type="image/png" href="images/favicon.png">
+    <link rel="apple-touch-icon" href="images/favicon.png">
+    <style>
+        :root { --bg-color: #ffffff; --bg-secondary: #f5f5f7; --text-main: #1d1d1f; --text-secondary: #86868b; --accent: #0071e3; --max-width: 1200px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif; margin: 0; padding: 0; background-color: var(--bg-color); color: var(--text-main); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+
+        ::selection { background: var(--accent); color: #fff; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-color); }
+        ::-webkit-scrollbar-thumb { background: #d1d1d6; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
+
+        .noise { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9999; opacity: 0.04; background-image: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)"/%3E%3C/svg%3E'); }
+        .progress-bar { position: fixed; top: 0; left: 0; height: 3px; background: var(--accent); width: 0%; z-index: 10000; transition: width 0.1s; }
+        .ambient-glow { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 80vw; height: 50vh; background: radial-gradient(circle, rgba(0, 113, 227, 0.1) 0%, rgba(255,255,255,0) 70%); z-index: 1; pointer-events: none; animation: pulse-glow 8s infinite alternate ease-in-out; }
+        @keyframes pulse-glow { 0% { transform: translateX(-50%) scale(1); opacity: 0.7; } 100% { transform: translateX(-50%) scale(1.1); opacity: 1; } }
+
+        .main-nav { position: fixed; top: 0; width: 100%; background: rgba(255, 255, 255, 0.85); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); display: flex; justify-content: space-between; align-items: center; padding: 16px 40px; box-sizing: border-box; z-index: 999; border-bottom: 1px solid rgba(0,0,0,0.05); transition: all 0.3s ease; }
+        .nav-brand { font-weight: 700; font-size: 18px; color: var(--text-main); text-decoration: none; }
+        .nav-links { display: flex; gap: 24px; align-items: center; }
+        .nav-links a { text-decoration: none; color: var(--text-main); font-size: 14px; font-weight: 500; opacity: 0.8; transition: opacity 0.3s; }
+        .nav-links a:hover { opacity: 1; }
+        
+        .lang-switch { display: flex; align-items: center; background: rgba(0,0,0,0.04); border-radius: 980px; padding: 4px; position: relative; cursor: pointer; border: 1px solid rgba(0,0,0,0.05); user-select: none; }
+        .lang-switch span { position: relative; z-index: 2; padding: 4px 12px; font-size: 13px; font-weight: 600; color: var(--text-secondary); transition: color 0.3s; }
+        .lang-switch span.active { color: var(--text-main); }
+        .lang-switch::before { content: ""; position: absolute; top: 4px; left: 4px; width: calc(50% - 4px); height: calc(100% - 8px); background: #fff; border-radius: 980px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        .lang-switch[data-lang="en"]::before { transform: translateX(100%); }
+
+        .btn-nav { background-color: var(--text-main); color: #fff; padding: 10px 24px; border-radius: 980px; text-decoration: none; font-size: 14px; font-weight: 600; transition: background-color 0.3s; display: inline-block; }
+        .btn-nav:hover { background-color: var(--accent); }
+
+        .menu-toggle { display: none; flex-direction: column; justify-content: space-between; width: 28px; height: 18px; cursor: pointer; z-index: 1000; }
+        .menu-toggle span { display: block; width: 100%; height: 2px; background-color: var(--text-main); border-radius: 2px; }
+        
+        .mobile-menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: rgba(255, 255, 255, 0.95); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); z-index: 10000; display: flex; flex-direction: column; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.4s ease; text-align: center; }
+        .mobile-menu-overlay.active { opacity: 1; pointer-events: auto; }
+        
+        .close-menu-btn { position: absolute; top: 24px; right: 24px; background: #e5e5ea; border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 18px; cursor: pointer; color: var(--text-main); display: flex; align-items: center; justify-content: center; font-weight: bold; transition: background 0.2s; z-index: 10001; }
+        .close-menu-btn:hover { background: #d1d1d6; }
+
+        .menu-link { font-size: 36px; font-weight: 700; color: var(--text-main); text-decoration: none; margin-bottom: 24px; opacity: 0; transform: translateY(20px); transition: all 0.4s ease; display: block; }
+        .mobile-menu-overlay.active .menu-link { opacity: 1; transform: translateY(0); }
+        .mobile-menu-overlay.active .menu-link:nth-child(1) { transition-delay: 0.1s; }
+        .mobile-menu-overlay.active .menu-link:nth-child(2) { transition-delay: 0.15s; }
+        .mobile-menu-overlay.active .menu-link:nth-child(3) { transition-delay: 0.2s; }
+        .mobile-menu-overlay.active .menu-link:nth-child(4) { transition-delay: 0.25s; }
+
+        .mobile-menu-footer { margin-top: 32px; display: flex; flex-direction: column; align-items: center; gap: 24px; opacity: 0; transition: opacity 0.5s ease 0.3s; width: 100%; max-width: 280px; }
+        .mobile-menu-overlay.active .mobile-menu-footer { opacity: 1; }
+
+        .work-card { position: relative; overflow: hidden; background-color: var(--bg-secondary); border-radius: 24px; transition: transform 0.4s ease, box-shadow 0.4s ease; text-decoration: none; color: inherit; display: block; }
+        @media (hover: hover) {
+            .work-card::after { content: ""; position: absolute; top: 0; left: -100%; width: 50%; height: 100%; background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 100%); transform: skewX(-25deg); transition: left 0.7s ease; z-index: 2; pointer-events: none; }
+            .work-card:hover::after { left: 200%; }
+        }
+        .work-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.08); }
+
+        .header { padding: 160px 20px 80px 20px; text-align: center; position: relative; z-index: 10; }
+        h1 { font-size: clamp(42px, 6vw, 64px); font-weight: 700; margin: 0 0 16px 0; letter-spacing: -0.015em; }
+        p.subtitle { font-size: clamp(20px, 3vw, 24px); color: var(--text-secondary); max-width: 600px; margin: 0 auto; }
+
+        .portfolio-container { max-width: var(--max-width); margin: 0 auto 120px auto; padding: 0 20px; position: relative; z-index: 10; }
+        .category-title { font-size: clamp(24px, 4vw, 32px); font-weight: 600; margin: 60px 0 24px 0; padding-bottom: 16px; border-bottom: 1px solid #e5e5ea; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 32px; }
+
+        .work-image { width: 100%; height: 280px; object-fit: cover; display: block; border-radius: 24px 24px 0 0; }
+        .work-info { padding: 24px; position: relative; z-index: 3; }
+        .work-info h3 { margin: 0 0 8px 0; font-size: 20px; }
+        .work-info p { margin: 0; color: var(--text-secondary); font-size: 15px; }
+
+        footer { border-top: 1px solid #e5e5ea; padding: 40px 20px; text-align: center; color: var(--text-secondary); font-size: 14px; position: relative; z-index: 10; background: var(--bg-color); }
+        .footer-links { display: flex; justify-content: center; gap: 24px; margin-bottom: 24px; flex-wrap: wrap; }
+        .footer-links a { color: var(--text-main); text-decoration: none; font-weight: 500; }
+        
+        .mobile-cta { display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); background: var(--text-main); color: #fff; text-align: center; padding: 16px; border-radius: 980px; font-weight: 600; text-decoration: none; z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+
+        @media (max-width: 768px) {
+            .main-nav { padding: 16px 20px; }
+            .nav-brand { display: block; } 
+            .nav-links, .btn-nav, .lang-switch { display: none; } 
+            .menu-toggle { display: flex; } 
+            .mobile-cta { display: block; }
+            footer { padding-bottom: 100px; } 
+        }
+
+        .fade-in { opacity: 0; transform: translateY(40px); transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+        .fade-in.visible { opacity: 1; transform: translateY(0); }
+    </style>
+</head>
+<body>
+
+    <div class="noise"></div>
+    <div class="ambient-glow"></div>
+    <div class="progress-bar" id="scroll-progress"></div>
+
+    <nav class="main-nav">
+        <a href="index.html" class="nav-brand" data-ru="Тамир Басиров" data-en="Tamir Basirov">Тамир Басиров</a>
+        <div class="nav-links">
+            <a href="index.html" data-ru="Услуги" data-en="Services">Услуги</a>
+            <a href="about.html" data-ru="Обо мне" data-en="About">Обо мне</a>
+            <a href="portfolio.html" style="opacity: 1; border-bottom: 2px solid var(--text-main); padding-bottom: 4px;" data-ru="Портфолио" data-en="Portfolio">Портфолио</a>
+            <a href="index.html#pricing" data-ru="Цены" data-en="Pricing">Цены</a>
+            <div class="lang-switch" data-lang="ru">
+                <span class="lang-ru active">RU</span>
+                <span class="lang-en">EN</span>
+            </div>
+        </div>
+        <a href="index.html#contacts" class="btn-nav magnetic" data-strength="20" data-ru="Обсудить проект" data-en="Discuss Project">Обсудить проект</a>
+        <div class="menu-toggle" id="mobile-menu-btn"><span></span><span></span><span></span></div>
+    </nav>
+
+    <!-- ПОЛНОЭКРАННОЕ МОБИЛЬНОЕ МЕНЮ С КРЕСТИКОМ -->
+    <div class="mobile-menu-overlay" id="mobile-menu">
+        <button class="close-menu-btn" id="close-menu-btn">✕</button>
+        
+        <div>
+            <a href="index.html" class="menu-link" data-ru="Услуги" data-en="Services">Услуги</a>
+            <a href="about.html" class="menu-link" data-ru="Обо мне" data-en="About">Обо мне</a>
+            <a href="portfolio.html" class="menu-link" style="color: var(--accent);" data-ru="Портфолио" data-en="Portfolio">Портфолио</a>
+            <a href="index.html#pricing" class="menu-link" data-ru="Цены" data-en="Pricing">Цены</a>
+        </div>
+        
+        <div class="mobile-menu-footer">
+            <div class="lang-switch" data-lang="ru" style="margin-bottom: 8px;">
+                <span class="lang-ru active">RU</span>
+                <span class="lang-en">EN</span>
+            </div>
+            <a href="index.html#contacts" class="btn btn-primary" style="text-align: center; width: 100%; padding: 14px;" data-ru="Связь со мной" data-en="Contact Me">Связь со мной</a>
+        </div>
+    </div>
+
+    <a href="index.html#contacts" class="mobile-cta" data-ru="Связаться со мной" data-en="Contact Me">Связаться со мной</a>
+
+    <div class="header fade-in">
+        <h1 data-ru="Все работы" data-en="All Works">Все работы</h1>
+        <p class="subtitle" data-ru="Архив моих проектов: от дизайна до сложных нейро-артов и моушн-анимации." data-en="Archive of my projects: from design to complex neural art and motion animation.">Архив моих проектов: от дизайна до сложных нейро-артов и моушн-анимации.</p>
+    </div>
+
+    <div class="portfolio-container">
+        
+        <h2 class="category-title fade-in" data-ru="Моушн-дизайн & Видео" data-en="Motion Design & Video">Моушн-дизайн & Видео</h2>
+        <div class="grid fade-in">
+            <a href="#" class="work-card">
+                <img src="images/cana.png" class="work-image" alt="Проект Cana School">
+                <div class="work-info">
+                    <h3>Cana School</h3>
+                    <p data-ru="Промо-ролик для летней программы." data-en="Promo video for summer program.">Промо-ролик для летней программы.</p>
+                </div>
+            </a>
+            <a href="#" class="work-card">
+                <img src="images/lumi.jpg" class="work-image" alt="Анимация Луми">
+                <div class="work-info">
+                    <h3 data-ru="Анимация персонажей" data-en="Character Animation">Анимация персонажей</h3>
+                    <p data-ru="Проект «Луми и её друзья»." data-en="Project 'Lumi and her friends'.">Проект «Луми и её друзья».</p>
+                </div>
+            </a>
+        </div>
+
+        <h2 class="category-title fade-in" data-ru="Графический дизайн" data-en="Graphic Design">Графический дизайн</h2>
+        <div class="grid fade-in">
+            <a href="#" class="work-card">
+                <img src="images/logo.jpg" class="work-image" alt="Футбольный проект">
+                <div class="work-info">
+                    <h3 data-ru="Футбольный брендинг" data-en="Football Branding">Футбольный брендинг</h3>
+                    <p data-ru="Айдентика и логотип." data-en="Identity and logo.">Айдентика и логотип.</p>
+                </div>
+            </a>
+            <a href="#" class="work-card">
+                <img src="images/tasmin.jpg" class="work-image" alt="30 Languages Project">
+                <div class="work-info">
+                    <h3 data-ru="Музыкальные обложки" data-en="Music Covers">Музыкальные обложки</h3>
+                    <p data-ru="Оформление релизов (30 Languages Project)." data-en="Release artwork (30 Languages Project).">Оформление релизов (30 Languages Project).</p>
+                </div>
+            </a>
+        </div>
+
+        <h2 class="category-title fade-in" data-ru="AI Дизайн & Концепт-Арт" data-en="AI Design & Concept Art">AI Дизайн & Концепт-Арт</h2>
+        <div class="grid fade-in">
+            <a href="#" class="work-card">
+                <img src="images/tasmin.png" class="work-image" alt="Tim Burton style">
+                <div class="work-info">
+                    <h3 data-ru="Проект Tasmin" data-en="Project Tasmin">Проект Tasmin</h3>
+                    <p data-ru="Генерация стоп-моушн концептов." data-en="Stop-motion concept generation.">Генерация стоп-моушн концептов.</p>
+                </div>
+            </a>
+            <a href="#" class="work-card">
+                <img src="images/boy.png" class="work-image" alt="Pixar 3D style">
+                <div class="work-info">
+                    <h3>Pixar 3D Style</h3>
+                    <p data-ru="Разработка стилизации для персонажей." data-en="Character stylization development.">Разработка стилизации для персонажей.</p>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-links">
+            <a href="portfolio.html" data-ru="Портфолио" data-en="Portfolio">Портфолио</a>
+            <a href="about.html" data-ru="Обо мне" data-en="About">Обо мне</a>
+            <a href="https://t.me/basirovtamir" target="_blank">Telegram</a>
+            <a href="https://www.instagram.com/basirov_tamir?igsh=b2IzYXJxazFlMnpk" target="_blank">Instagram</a>
+        </div>
+        <p><span data-ru="&copy; 2026 Тамир Басиров. Дизайн и Моушн. Ташкент." data-en="&copy; 2026 Tamir Basirov. Design & Motion. Tashkent.">&copy; 2026 Тамир Басиров. Дизайн и Моушн. Ташкент.</span></p>
+    </footer>
+
+    <script>
+        const langSwitches = document.querySelectorAll('.lang-switch');
+        let currentLang = 'ru';
+        langSwitches.forEach(toggle => {
+            toggle.addEventListener('click', (e) => {
+                e.preventDefault();
+                currentLang = currentLang === 'ru' ? 'en' : 'ru';
+                langSwitches.forEach(sw => {
+                    sw.setAttribute('data-lang', currentLang);
+                    sw.querySelectorAll('span').forEach(sp => sp.classList.remove('active'));
+                    sw.querySelector(`.lang-${currentLang}`).classList.add('active');
+                });
+                document.querySelectorAll('[data-' + currentLang + ']').forEach(el => {
+                    el.innerHTML = el.getAttribute('data-' + currentLang);
+                });
+            });
+        });
+
+        window.addEventListener('scroll', () => {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            document.getElementById("scroll-progress").style.width = ((winScroll / height) * 100) + "%";
+        });
+
+        // ЛОГИКА МЕНЮ
+        const menuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const closeMenuBtn = document.getElementById('close-menu-btn');
+
+        function openMobileMenu() {
+            mobileMenu.classList.add('active');
+            document.body.style.overflow = 'hidden'; 
+        }
+
+        function closeMobileMenu() {
+            mobileMenu.classList.remove('active');
+            document.body.style.overflow = ''; 
+        }
+
+        menuBtn.addEventListener('click', openMobileMenu);
+        closeMenuBtn.addEventListener('click', closeMobileMenu);
+        mobileMenu.querySelectorAll('.menu-link, .btn').forEach(link => link.addEventListener('click', closeMobileMenu));
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+            }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
+            document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+        });
+
+        if (window.matchMedia("(pointer: fine)").matches) {
+            document.querySelectorAll('.magnetic').forEach((el) => {
+                el.addEventListener('mousemove', function(e) {
+                    const pos = el.getBoundingClientRect();
+                    const x = e.clientX - pos.left - pos.width / 2;
+                    const y = e.clientY - pos.top - pos.height / 2;
+                    const str = el.dataset.strength || 20;
+                    el.style.transform = `translate(${x / pos.width * str}px, ${y / pos.height * str}px)`;
+                    el.style.transition = 'transform 0.1s ease-out';
+                });
+                el.addEventListener('mouseleave', function() {
+                    el.style.transform = 'translate(0px, 0px)';
+                    el.style.transition = 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
+                });
+            });
+        }
+    </script>
+</body>
+</html>
